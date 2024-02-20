@@ -1,3 +1,24 @@
+<!--
+    ⚫︎Google APIのJavascript認可取得確認プログラム
+    今日で初めてJavascriptを見たため、内容についてはあまり深く理解できていない
+    ChatGPTにGoogleのJavascriptプラットフォームライブラリにおける認可サポート終了
+    に伴って、<script src="https://apis.google.com/js/api.js"></script>
+    が機能しなくなったがどのように書き直せば良いかと聞いて帰ってきたコードとそれっぽい
+    説明をもとに考えてる為致命的なミスがあるかもしれない
+
+    ⚫︎Authorize ボタンを押すと認可の結果が出るはずだった
+    エラー 400: invalid_requestと出てアクセスをブロックされてしまう
+    VScodeのLive Serverから実行し、OAth2.0のクライアントIDの認証済み
+    のリダイレクトURIに　http://127.0.0.1:5501/CheckAPI.html　
+    を追加済み　←様式が合ってるかわかってないので、ここ？
+
+
+
+-->
+
+
+
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -9,7 +30,10 @@
     <button onclick="handleAuthClick()">Authorize</button>
     <script>
         // 認証用関数
-        //scopeはgoogle cloudのAPIとサービスのページのOAth同意画面からリストに飛べる
+
+        //以下２行は月岡が追加
+        //client_idはAPI consoleで作成した証人情報のOAth2.0クライアントID
+        //scopeはgoogle API ConsoleのAPIとサービスのページのOAth同意画面からリストに飛べる
 
         function handleAuthClick() {
             gapi.auth.authorize({
