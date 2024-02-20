@@ -1,0 +1,1 @@
+Google CalendarのAPIが上手く取得できません。
