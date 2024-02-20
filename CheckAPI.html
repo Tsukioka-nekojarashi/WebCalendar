@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google API OAuth 2.0</title>
+</head>
+<body>
+    <button onclick="handleAuthClick()">Authorize</button>
+    <script>
+        // 認証用関数
+        //scopeはgoogle cloudのAPIとサービスのページのOAth同意画面からリストに飛べる
+
+        function handleAuthClick() {
+            gapi.auth.authorize({
+                client_id: '365527627371-mn0vpobtcmo8dp47g3paremsm4vsd6rj.apps.googleusercontent.com',
+                scope: 'https://www.googleapis.com/auth/calendar.events',
+                immediate: false
+            }, handleAuthResult);
+        }
+
+        // 認証結果を処理する関数
+        function handleAuthResult(authResult) {
+            if (authResult && !authResult.error) {
+                // 認可が成功した場合、アクセストークンを使用してAPI呼び出しを行う
+                // ここにAPI呼び出しの処理を追加
+                console.log('Authentication successful');
+            } else {
+                // 認可が失敗した場合の処理
+                console.error('Authentication failed');
+            }
+        }
+
+        // Google APIライブラリをロードする
+        function loadGoogleAPI() {
+            gapi.load('client:auth2', initGoogleAPI);
+        }
+
+        // Google APIの初期化
+        function initGoogleAPI() {
+            gapi.client.init({
+                apiKey: 'AIzaSyDNsYAaf02hbQWPLgMginkWW4i06AgsVxE',
+                clientId: '365527627371-mn0vpobtcmo8dp47g3paremsm4vsd6rj.apps.googleusercontent.com',
+                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/v1/rest"],
+                scope: 'https://www.googleapis.com/auth/calendar'
+            }).then(function () {
+                console.log('Google API initialized');
+            });
+        }
+
+        // ページ読み込み完了時にGoogle APIライブラリをロードする
+        window.onload = function () {
+            loadGoogleAPI();
+        };
+    </script>
+    <script src="https://apis.google.com/js/api.js"></script>
+</body>
+</html>
