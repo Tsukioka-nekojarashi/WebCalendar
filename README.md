@@ -1,1 +1,2 @@
-Google CalendarのAPIが上手く取得できません。
+Google CalendarのAPIを取得できる様になりました。
+Google Workspaceが出してるQuickstartのイベントの取得機能の他に、イベントの追加・削除の機能を追加したデモを作成しました
