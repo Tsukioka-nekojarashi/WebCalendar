@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Google Calendar API Quickstart</title>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <p>Google Calendar API Quickstart</p>
+
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
+    <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
+    <!--イベント追加ボタンの追加-->
+    <button id="addEvent_button" onclick="handleAddEventClick()">Add Events</button> 
+    <!--イベント削除ボタンの追加-->
+    <button id="delEvent_button" onclick="handleDelEventClick()">Delete Events</button> 
+
+    <pre id="content" style="white-space: pre-wrap;"></pre>
+
+    <script type="text/javascript">
+      /* exported gapiLoaded */
+      /* exported gisLoaded */
+      /* exported handleAuthClick */
+      /* exported handleSignoutClick */
+
+      // TODO(developer): Set to client ID and API key from the Developer Console
+      const CLIENT_ID = '365527627371-mn0vpobtcmo8dp47g3paremsm4vsd6rj.apps.googleusercontent.com';
+      const API_KEY = 'AIzaSyDNsYAaf02hbQWPLgMginkWW4i06AgsVxE';
+
+      // Discovery doc URL for APIs used by the quickstart
+      const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
+
+      // Authorization scopes required by the API; multiple scopes can be
+      // included, separated by spaces.
+      const SCOPES = 'https://www.googleapis.com/auth/calendar';
+
+      let tokenClient;
+      let gapiInited = false;
+      let gisInited = false;
+
+      document.getElementById('authorize_button').style.visibility = 'hidden';
+      document.getElementById('signout_button').style.visibility = 'hidden';
+      document.getElementById('addEvent_button').style.visibility = 'hidden';
+      document.getElementById('delEvent_button').style.visibility = 'hidden';
+
+      /**
+       * Callback after api.js is loaded.
+       */
+      function gapiLoaded() {
+        gapi.load('client', initializeGapiClient);
+      }
+
+      /**
+       * Callback after the API client is loaded. Loads the
+       * discovery doc to initialize the API.
+       */
+      async function initializeGapiClient() {
+        await gapi.client.init({
+          apiKey: API_KEY,
+          discoveryDocs: [DISCOVERY_DOC],
+        });
+        gapiInited = true;
+        maybeEnableButtons();
+      }
+
+      /**
+       * Callback after Google Identity Services are loaded.
+       */
+      function gisLoaded() {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          callback: '', // defined later
+        });
+        gisInited = true;
+        maybeEnableButtons();
+      }
+
+      /**
+       * Enables user interaction after all libraries are loaded.
+       */
+      function maybeEnableButtons() {
+        if (gapiInited && gisInited) {
+          document.getElementById('authorize_button').style.visibility = 'visible';
+        }
+      }
+
+      /**
+       *  Sign in the user upon button click.
+       */
+      function handleAuthClick(){
+        tokenClient.callback = async (resp) => {
+          if (resp.error !== undefined) {
+            throw (resp);
+          }
+
+          document.getElementById('signout_button').style.visibility = 'visible';
+          document.getElementById('authorize_button').innerText = 'Refresh';
+          document.getElementById('addEvent_button').style.visibility = 'visible';
+          document.getElementById('delEvent_button').style.visibility = 'visible';
+          await listUpcomingEvents();
+        };
+
+        if (gapi.client.getToken() === null) {
+          // Prompt the user to select a Google Account and ask for consent to share their data
+          // when establishing a new session.
+          tokenClient.requestAccessToken({prompt: 'consent'});
+        } else {
+          // Skip display of account chooser and consent dialog for an existing session.
+          tokenClient.requestAccessToken({prompt: ''});
+        }
+      }
+         
+      // イベント追加ボタンを押した時にイベント追加処理の呼び出し　
+      function handleAddEventClick() {
+        summary = prompt('予定を記入してください', '例：デート');
+        kaisibi = prompt('予定開始日を記入して下さい', '例:2024-02-29');
+        kaisijikoku = prompt('開始時刻を記入して下さい', '例:10:00');
+        startDateTime = kaisibi + 'T' + kaisijikoku + ':00+09:00';
+        syuryobi = prompt('予定開始日を記入して下さい', '例:2024-02-29');
+        syuryojikoku = prompt('終了時刻を記入して下さい', '例:10:00');
+        endDateTime = syuryobi + 'T' + syuryojikoku + ':00+09:00';
+        //startDateTime = prompt('開始時刻を記入して下さい', '例:2024-02-29T10:00:00+09:00');
+        //endDateTime = prompt('開始時刻を記入して下さい', '例:2024-02-29T14:00:00+09:00');
+        addEvents(summary, startDateTime, endDateTime);
+      };
+
+      // イベント削除ボタンを押した時にイベントのリスアップとイベント削除処理の呼び出し　
+      function handleDelEventClick() {
+        prompt('handleDelEventClick has been called')
+        findEventIdandDelete()
+ 
+        //delEvents(eventId);
+      };
+      
+      async function findEventIdandDelete() {   
+        let eventSummary = prompt('削除したいイベントを入力して下さい','例：デート');
+        try {
+            let response = await gapi.client.calendar.events.list({
+                'calendarId': 'c_9f27217a24e638afb89a85ece0bd7da01915897e6709703d62d0823b993ee77b@group.calendar.google.com',
+                'q': eventSummary,
+                'showDeleted': false,
+                'singleEvents': true,
+                'maxResults': 10,
+                'orderBy': 'startTime'
+            });
+            const events = response.result.items;
+            if (events.length > 0) {
+                delEvents(events[0].id);
+            } else {
+                document.getElementById('output').innerHTML = 'No events found.';
+            }
+         } catch (error) {
+            console.error('The API returned an error: ' + error);
+            document.getElementById('output').innerHTML = 'Error: ' + error;
+        }
+      }
+
+      /**
+       *  Sign out the user upon button click.
+       */
+      function handleSignoutClick() {
+        const token = gapi.client.getToken();
+        if (token !== null) {
+          google.accounts.oauth2.revoke(token.access_token);
+          gapi.client.setToken('');
+          document.getElementById('content').innerText = '';
+          document.getElementById('authorize_button').innerText = 'Authorize';
+          document.getElementById('signout_button').style.visibility = 'hidden';
+          document.getElementById('addEvent_button').style.visibility = 'hidden';
+        }
+      }
+
+      /**
+       * Print the summary and start datetime/date of the next ten events in
+       * the authorized user's calendar. If no events are found an
+       * appropriate message is printed.
+       */
+      async function listUpcomingEvents() {
+        let response;
+        try {
+          const request = {
+            'calendarId': 'c_9f27217a24e638afb89a85ece0bd7da01915897e6709703d62d0823b993ee77b@group.calendar.google.com',
+            'timeMin': (new Date()).toISOString(),
+            'showDeleted': false,
+            'singleEvents': true,
+            'maxResults': 10,
+            'orderBy': 'startTime',
+          };
+          response = await gapi.client.calendar.events.list(request);
+        } catch (err) {
+          document.getElementById('content').innerText = err.message;
+          return;
+        }
+
+        const events = response.result.items;
+        if (!events || events.length == 0) {
+          document.getElementById('content').innerText = 'No events found.';
+          return;
+        }
+
+        // Flatten to string to display
+        const output = events.reduce(
+            (str, event) => `${str}${event.summary} (${event.start.dateTime || event.start.date})\n`,
+            'Events:\n');
+        document.getElementById('content').innerText = output;
+      }
+
+      //イベントの追加処理
+      async function addEvents(summary, startDateTime, endDateTime) {
+          try {
+            const event = {
+                'summary': summary,
+                'start': {
+                    'dateTime': startDateTime,
+                    'timeZone': 'Asia/Tokyo', // 適切なタイムゾーンを指定します
+                },
+                'end': {
+                    'dateTime': endDateTime,
+                    'timeZone': 'Asia/Tokyo', // 適切なタイムゾーンを指定します
+                },
+            };
+
+            
+
+            const response = await gapi.client.calendar.events.insert({
+                'calendarId':'c_9f27217a24e638afb89a85ece0bd7da01915897e6709703d62d0823b993ee77b@group.calendar.google.com', // プライマリカレンダーに追加する場合は'primary'を指定します
+                'resource': event
+            });
+
+            console.log('Event added: ', response.result);
+            return response.result;
+        } catch (err) {
+            console.error('Error adding event: ', err);
+            throw err;
+          }
+      }       
+
+
+
+      // Googleカレンダーからイベントを取得し、セレクトボックスに表示する
+      /*async function listEvents() {
+        prompt('listEvent has been called')  
+        try {
+            const response = await gapi.client.calendar.events.list({
+                'calendarId': 'c_9f27217a24e638afb89a85ece0bd7da01915897e6709703d62d0823b993ee77b@group.calendar.google.com', // カレンダーID
+                'timeMin': (new Date()).toISOString(), // 現在の日時以降のイベントを取得
+                'showDeleted': false,
+                'singleEvents': true,
+                 'orderBy': 'startTime'
+            });
+
+            events = response.result.items;
+            const eventList = document.getElementById('eventList');
+            eventList.innerHTML = ''; // セレクトボックスをクリア
+
+            events.forEach(event => {
+                const option = document.createElement('option');
+                option.value = event.id; // オプションの値にイベントIDを設定
+                option.text = event.summary || 'Untitled Event'; // イベントのタイトルを表示（ない場合は"Untitled Event"）
+                eventList.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error listing events:', error);
+        }
+      }*/
+
+
+
+
+
+
+    // イベント削除処理
+    async function delEvents(eventId) {
+      // フォームからイベントIDを取得する
+      //const eventId = document.getElementById('eventId').value;
+      prompt('delEvent has been called')
+      try {
+          // Google Calendar APIを使用してイベントを削除する
+          await gapi.client.calendar.events.delete({
+              'calendarId': 'c_9f27217a24e638afb89a85ece0bd7da01915897e6709703d62d0823b993ee77b@group.calendar.google.com', // カレンダーID
+              'eventId': eventId // 削除するイベントのID
+          });
+
+          console.log('Event deleted successfully');
+      } catch (error) {
+          console.error('Error deleting event:', error);
+      }
+    } 
+
+
+    </script>
+
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+  </body>
+</html>
