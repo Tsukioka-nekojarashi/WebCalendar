@@ -7,6 +7,7 @@
   <body>
     <p>Google Calendar API 予定の取得と追加・削除</p>
 
+    
     <script async defer src="jsApps/eventAdd.js" onload="handleAuthClick()"></script>
     <script async defer src="jsApps/eventDelete.js" onload="handleAuthClick()"></script>
     <script async defer src="jsApps/eventGet.js" onload ="handleAuthClick()"></script>
@@ -98,6 +99,7 @@
             throw (resp);
           }
 
+          
           document.getElementById('signout_button').style.visibility = 'visible';
           document.getElementById('authorize_button').innerText = 'Refresh';
           document.getElementById('addEvent_button').style.visibility = 'visible';
@@ -133,7 +135,7 @@
       }
 
     </script>
-
+    <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Asia%2FTokyo&bgcolor=%23ffffff&src=Y185ZjI3MjE3YTI0ZTYzOGFmYjg5YTg1ZWNlMGJkN2RhMDE5MTU4OTdlNjcwOTcwM2Q2MmQwODIzYjk5M2VlNzdiQGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20&color=%234285F4" style="border:solid 1px #777" width="800" height="600" frameborder="0" scrolling="no"></iframe>
     <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
     <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
   </body>
