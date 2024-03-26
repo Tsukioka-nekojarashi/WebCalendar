@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Google Calendarの予約スケジュールを使用したフォーマット</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <script src='main.js'></script>
+</head>
+<body>
+    <p>Google Calendar 予約スケジュールを用いた 予定の取得と追加・削除</p>
+
+    <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Asia%2FTokyo&bgcolor=%23ffffff&src=Y185ZjI3MjE3YTI0ZTYzOGFmYjg5YTg1ZWNlMGJkN2RhMDE5MTU4OTdlNjcwOTcwM2Q2MmQwODIzYjk5M2VlNzdiQGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20&color=%234285F4" style="border:solid 1px #777" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+
+    <!-- Google Calendar Appointment Scheduling begin -->
+    <link href="https://calendar.google.com/calendar/scheduling-button-script.css" rel="stylesheet">
+    <script src="https://calendar.google.com/calendar/scheduling-button-script.js" async></script>
+    <script>
+    (function() {
+    var target = document.currentScript;
+    window.addEventListener('load', function() {
+        calendar.schedulingButton.load({
+        url: 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ3nwGv5upXno55kc_vlC7SZBQ26NrVMZjaReun6rPxyaM3NeuPVbSWrX5Zbk-aRJ89nIsI--NXW?gv=true',
+        color: '#039BE5',
+        label: '予約する',
+        target,
+        });
+    });
+    })();
+    </script>
+    <!-- end Google Calendar Appointment Scheduling -->
+          
+</body>
+</html>>
